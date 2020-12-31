@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_FUGR" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <AREAT>Sample Screens</AREAT>
+   <INCLUDES>
+    <SOBJ_NAME>LZFGC8A001_SAMPLE_SCRND01</SOBJ_NAME>
+    <SOBJ_NAME>LZFGC8A001_SAMPLE_SCRND02</SOBJ_NAME>
+    <SOBJ_NAME>LZFGC8A001_SAMPLE_SCRNTOP</SOBJ_NAME>
+    <SOBJ_NAME>SAPLZFGC8A001_SAMPLE_SCRN</SOBJ_NAME>
+   </INCLUDES>
+   <FUNCTIONS>
+    <item>
+     <FUNCNAME>Z_C8A001_SCR_TAB_SEL</FUNCNAME>
+     <SHORT_TEXT>Table Selection Screen</SHORT_TEXT>
+     <CHANGING>
+      <RSCHA>
+       <PARAMETER>DTO_SEL_SCR</PARAMETER>
+       <REFERENCE>X</REFERENCE>
+       <TYP>REF TO ZCL_C8A001_SAMPLE_DTO_SCR</TYP>
+       <REF_CLASS>X</REF_CLASS>
+      </RSCHA>
+     </CHANGING>
+     <EXPORT>
+      <RSEXP>
+       <PARAMETER>EV_SUBRC</PARAMETER>
+       <REFERENCE>X</REFERENCE>
+       <TYP>SYSUBRC</TYP>
+      </RSEXP>
+     </EXPORT>
+     <DOCUMENTATION>
+      <RSFDO>
+       <PARAMETER>EV_SUBRC</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Код возврата для ABAP-операторов</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>DTO_SEL_SCR</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>DTO: Sample Screen</STEXT>
+      </RSFDO>
+     </DOCUMENTATION>
+    </item>
+   </FUNCTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>
