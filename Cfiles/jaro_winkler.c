@@ -61,8 +61,8 @@ double  strcmp95(char *ying, char *yang, long y_length, int *ind_c[])
 
    The suggested values are all zeros for character strings such as names.    */
 
-// static	int	pass=0,	adjwt[91][91];
-static	int	pass=1,	adjwt[91][91]; // switching off phonetic
+ static	int	pass=0,	adjwt[91][91];
+//static	int	pass=1,	adjwt[91][91]; // switching off phonetic
 static	char	sp[39][2] =
  {'A','E',  'A','I',  'A','O',  'A','U',  'B','V',  'E','I',  'E','O',  'E','U',
   'I','O',  'I','U',  'O','U',  'I','Y',  'E','Y',  'C','G',  'E','F',
@@ -83,7 +83,7 @@ long    minv,   search_range,   lowlim,    ying_length,
 
 int	yl1,	yi_st,	N_simi;
 
-register        int     i,      j,      k;
+register        int     i,      j,      k, z1;
 
 /* Initialize the adjwt array on the first call to the function only.
    The adjwt array is used to give partial credit for characters that 
@@ -112,6 +112,12 @@ yi_st = j;
 for(j = 0;((yang[j]==' ') && (j < k));j++);
 for(i = k;((yang[i]==' ') && (i > 0));i--);
 yang_length = i + 1 - j;
+/////////
+printf("\n i = %d ; j = %d ; yang_length = %ld", i, j, yang_length);
+for(z1 = 0; z1 < yang_length; z1++){
+	printf("\n yang_length[ %d ] = %c", z1, yang[z1]);
+}
+/////////
 
 ying_hold[0]=yang_hold[0]=0;
 strncat(ying_hold,&ying[yi_st],ying_length);
@@ -125,7 +131,7 @@ if (ying_length > yang_length) {
   search_range = yang_length;
   minv = ying_length;
   }
-
+printf("\n if_point search_range = %ld minv = %ld" , search_range, minv);
 /* If either string is blank - return                                         */
 /* if (!minv) return(0.0);                   removed in version 2             */
 
@@ -135,13 +141,19 @@ strncat(ying_flag,NULL60,search_range);
 strncat(yang_flag,NULL60,search_range);
 search_range = (search_range/2) - 1;
 if (search_range < 0) search_range = 0;   /* added in version 2               */
+/////////////learninf purposes {{
+printf("\n search_range = %ld" , search_range);
+/////////////learninf purposes }}
 
 /* Convert all lower case characters to upper case.                           */
 if (!ind_c[1]) {
   for (i = 0;i < ying_length;i++) if (islower(ying_hold[i])) ying_hold[i] -= 32;
   for (j = 0;j < yang_length;j++) if (islower(yang_hold[j])) yang_hold[j] -= 32;
+/////////////learninf purposes {{
+printf("\n converitng to upper case");
+/////////////learninf purposes }}
 }
-
+   
 /* Looking only within the search range, count and flag the matched pairs.    */
 Num_com = 0; 
 yl1 = yang_length - 1;
@@ -149,6 +161,9 @@ for (i = 0;i < ying_length;i++) {
   lowlim = (i >= search_range) ? i - search_range : 0;
   hilim = ((i + search_range) <= yl1) ? (i + search_range) : yl1;
   for (j = lowlim;j <= hilim;j++)  {
+  	///////////////////////////////////////////////////
+	//* printf("\n lowlim = %ld  hilim = %ld", lowlim, hilim );
+	///////////////////////////////////////////////////
     if ((yang_flag[j] != '1') && (yang_hold[j] == ying_hold[i])) {
         yang_flag[j] = '1';
         ying_flag[i] = '1';
@@ -159,8 +174,7 @@ for (i = 0;i < ying_length;i++) {
 /* If no characters in common - return                                        */
 if (!Num_com) return(0.0);                          
 ///////////////////////////////////////////////////
-printf("\n Num_com =");
-printf("%ld", Num_com);
+printf("\n Num_com (characters in common) = %ld", Num_com);
 ///////////////////////////////////////////////////
 
 
@@ -173,11 +187,14 @@ for (i = 0;i < ying_length;i++) {
          k = j + 1;
          break;
     } }
+    //////////////////////////////////////{{{{{{{{{{{{
+    printf("\n ying_hold[ %d ] = %c", i, ying_hold[i]);
+    printf("\n yang_hold[ %d ] = %c", j, yang_hold[j]);
+    //////////////////////////////////////}}}}}}}}}}}
     if (ying_hold[i] != yang_hold[j]){
         N_trans++;   
         ///////////////////////////////////////////////////
-        printf("\n N_trans =");
-        printf("%ld", N_trans);
+        printf("\n N_trans = %ld", N_trans);
         ///////////////////////////////////////////////////
     }
 } }
@@ -198,11 +215,22 @@ if (minv > Num_com) {
             yang_flag[j] = '2';
             break;
 } } } } } }
+
+///////////~~~~~for learning purposes~~~~{{{{{~~~~~/
+printf("\n N_simi = %d", N_simi);
+///////////~~~~~for learning purposes~~~~~~~}}}}}~~/
+
 Num_sim = ((double) N_simi)/10.0 + Num_com;
 
+///////////~~~~~for learning purposes~~~~{{{{{~~~~~/
+printf("\n ying_length = %ld ; yang_length = %ld", ying_length, yang_length);
+///////////~~~~~for learning purposes~~~~~~~}}}}}~~/
 /* Main weight computation.	aka Jaro					      */
 weight= Num_sim / ((double) ying_length) + Num_sim / ((double) yang_length)
    + ((double) (Num_com - N_trans)) / ((double) Num_com);
+///////////~~~~~for learning purposes~~~~{{{{{~~~~~/
+printf("\n Jaro weight * 3 = %lf", weight);
+///////////~~~~~for learning purposes~~~~~~~}}}}}~~/
 weight = weight / 3.0;
 ///////////~~~~~for learning purposes~~~~{{{{{~~~~~/
 printf("\n Jaro weight = %lf", weight);
@@ -215,7 +243,9 @@ if (weight > 0.7) {
   j = (minv >= 4) ? 4 : minv;
   for (i=0;((i<j)&&(ying_hold[i]==yang_hold[i])&&(NOTNUM(ying_hold[i])));i++); 
   if (i) weight += i * 0.1 * (1.0 - weight);
-
+	///////////~~~~~for learning purposes~~~~{{{{{~~~~~/
+	printf("\n adjusting 4 1st charcters = %lf", weight);
+	///////////~~~~~for learning purposes~~~~~~~}}}}}~~/
   /* Optionally adjust for long strings.                                      */
   /* After agreeing beginning chars, at least two more must agree and 
        the agreeing characters must be > .5 of remaining characters.          */
@@ -223,6 +253,9 @@ if (weight > 0.7) {
   if (NOTNUM(ying_hold[0])) 
     weight += (double) (1.0-weight) *
    ((double) (Num_com-i-1) / ((double) (ying_length+yang_length-i*2+2)));
+   ///////////~~~~~for learning purposes~~~~{{{{{~~~~~/
+	printf("\n adjusting for long string = %lf", weight);
+	///////////~~~~~for learning purposes~~~~~~~}}}}}~~/
  }
 return(weight);
 
@@ -243,20 +276,20 @@ int *ind_c_in[1];
 int length_word1 = strlen(char_ying); 
 int length_word2 = strlen(char_yang);
 
-int adjust4long = 1;
-int case_insensitive = 1;
+int adjust4long = 0;
+int case_insensitive = 0;
 //////////////////////////////////
 // size_t size_word = sizeof(char_yang) / sizeof(char_yang[0]);
-
 
 printf( "Enter strings:");
 scanf("%s %s", char_ying, char_yang);
 
-printf( "Options: [additional4long(0/1)] [case_insensitive(0/1)] :");
+printf( "Options: [additional4long(0/1)] [case_insensitive(0/1)]. Non-Zero means option is deactivated :");
 scanf("%d %d", &adjust4long, &case_insensitive);
 
 length_word1 = strlen(char_ying);
 length_word2 = strlen(char_yang);
+printf( "at the begin length_word1 = %d ; length_word2 = %d", length_word1, length_word2);
 if ( length_word1 > length_word2 ){
     max_size = length_word1;
 }
@@ -267,8 +300,8 @@ else {
 //////////////////////////////////
 
 y_length_in = max_size;
-ind_c_in[0] = &adjust4long;
-ind_c_in[1] = &case_insensitive;
+ind_c_in[0] = adjust4long;
+ind_c_in[1] = case_insensitive;
 
 res_jw = strcmp95(char_ying, char_yang, y_length_in, ind_c_in);
 
