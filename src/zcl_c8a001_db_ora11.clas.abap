@@ -1,9 +1,5 @@
-*----------------------------------------------------------------------*
-*       CLASS ZCL_C8A001_DB_ORA12 DEFINITION
-*----------------------------------------------------------------------*
-*
-*----------------------------------------------------------------------*
-CLASS zcl_c8a001_db_ora12 DEFINITION
+
+CLASS ZCL_C8A001_DB_ORA11 DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -46,26 +42,14 @@ ENDCLASS.
 
 
 
-CLASS ZCL_C8A001_DB_ORA12 IMPLEMENTATION.
+CLASS ZCL_C8A001_DB_ORA11 IMPLEMENTATION.
 
 
-* <SIGNATURE>---------------------------------------------------------------------------------------+
-* | Instance Public Method ZCL_C8A001_DB_ORA12->CONSTRUCTOR
-* +-------------------------------------------------------------------------------------------------+
-* +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD constructor.
 
   ENDMETHOD.                    "CONSTRUCTOR
 
 
-* <SIGNATURE>---------------------------------------------------------------------------------------+
-* | Instance Private Method ZCL_C8A001_DB_ORA12->GET_QUERY4ORA
-* +-------------------------------------------------------------------------------------------------+
-* | [--->] IV_APPLY_FILTER                TYPE        STRING
-* | [--->] IV_APPLY_FILTER4TAB            TYPE        STRING
-* | [--->] IV_CONTAINS_SEARCH             TYPE        STRING
-* | [<-()] RV_VAL                         TYPE        STRING
-* +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD get_query4ora.
 *        IMPORTING iv_apply_filter     TYPE string
 *                  iv_apply_filter4tab TYPE string
@@ -74,49 +58,67 @@ CLASS ZCL_C8A001_DB_ORA12 IMPLEMENTATION.
     data lv_similarity_short TYPE syindex VALUE 50.
     data lv_contains_upper TYPE string.
     data skip_records type syindex VALUE 0.
-    data num_of_records type syindex VALUE 1000.
+    data num_of_records type syindex VALUE 100.
 
     lv_contains_upper = iv_contains_search.
     TRANSLATE lv_contains_upper TO UPPER CASE.
 
     IF iv_contains_search IS INITIAL.
       rv_val =
-     | SELECT |
+     | SELECT * from ( |
+  && | SELECT |
+  && | "TABNAME", "FIELDNAME", "AS4LOCAL", "TABCLASS", "SQLTAB", "POSITION", "KEYFLAG", "MANDATORY",  |
+  && | "ROLLNAME", "DOMNAME", "CHECKTABLE", "ADMINFIELD", "INTTYPE", "INTLEN", "REFTABLE", |
+  && | "PRECFIELD", "REFFIELD", "CONROUT", "NOTNULL", "LENG",  "DATATYPE", "COMPTYPE",  |
+  && | "TABLETYPE", "DEPTH", "AS4USER", "AS4DATE", "MASTERLANG", "DDLANGUAGE", "DDTEXT",  |
+  && | "REPTEXT",  "SCRTEXT_S", "SCRTEXT_M", "SCRTEXT_L", "RANK_MATCH_INT",  |
+  && | rownum AS row_bottom  |
+  && | from ( |
+  && | SELECT |
   && | "TABNAME", "FIELDNAME", "AS4LOCAL", "TABCLASS", "SQLTAB", "POSITION", "KEYFLAG", "MANDATORY",  |
   && | "ROLLNAME", "DOMNAME", "CHECKTABLE", "ADMINFIELD", "INTTYPE", "INTLEN", "REFTABLE", |
   && | "PRECFIELD", "REFFIELD", "CONROUT", "NOTNULL", "LENG",  "DATATYPE", "COMPTYPE",  |
   && | "TABLETYPE", "DEPTH", "AS4USER", "AS4DATE", "MASTERLANG", "DDLANGUAGE", "DDTEXT",  |
   && | "REPTEXT",  "SCRTEXT_S", "SCRTEXT_M", "SCRTEXT_L" |
-  && | , '100' as "RANK_MATCH_INT" |
+  && | , '100' as "RANK_MATCH_INT", |
+  && | rownum AS row_top |
   && | from "DD03VT" |
   && | where { iv_apply_filter } |
-  && | ORDER BY "TABNAME", "FIELDNAME" OFFSET { skip_records } ROWS FETCH NEXT { num_of_records } ROWS ONLY |
+  && | ORDER BY "TABNAME", "POSITION", "FIELDNAME" |
+  && | ) tab_flike where row_top <= { num_of_records + skip_records } |
+  && | ) tab4offset where row_bottom > { skip_records } |
   .
     ELSE.
     rv_val =
-     | SELECT |
+     | SELECT * from ( |
+  && | SELECT |
+  && | "TABNAME", "FIELDNAME", "AS4LOCAL", "TABCLASS", "SQLTAB", "POSITION", "KEYFLAG", "MANDATORY",  |
+  && | "ROLLNAME", "DOMNAME", "CHECKTABLE", "ADMINFIELD", "INTTYPE", "INTLEN", "REFTABLE", |
+  && | "PRECFIELD", "REFFIELD", "CONROUT", "NOTNULL", "LENG",  "DATATYPE", "COMPTYPE",  |
+  && | "TABLETYPE", "DEPTH", "AS4USER", "AS4DATE", "MASTERLANG", "DDLANGUAGE", "DDTEXT",  |
+  && | "REPTEXT",  "SCRTEXT_S", "SCRTEXT_M", "SCRTEXT_L", "RANK_MATCH_INT",  |
+  && | rownum AS row_bottom  |
+  && | from ( |
+  && | SELECT |
   && | "TABNAME", "FIELDNAME", "AS4LOCAL", "TABCLASS", "SQLTAB", "POSITION", "KEYFLAG", "MANDATORY",  |
   && | "ROLLNAME", "DOMNAME", "CHECKTABLE", "ADMINFIELD", "INTTYPE", "INTLEN", "REFTABLE", |
   && | "PRECFIELD", "REFFIELD", "CONROUT", "NOTNULL", "LENG",  "DATATYPE", "COMPTYPE",  |
   && | "TABLETYPE", "DEPTH", "AS4USER", "AS4DATE", "MASTERLANG", "DDLANGUAGE", "DDTEXT",  |
   && | "REPTEXT",  "SCRTEXT_S", "SCRTEXT_M", "SCRTEXT_L", |
-  && | UTL_MATCH.jaro_winkler_similarity( upper(SCRTEXT_L), '{ lv_contains_upper }') AS "RANK_MATCH_INT" |
+  && | UTL_MATCH.jaro_winkler_similarity( upper(SCRTEXT_L), '{ lv_contains_upper }') AS "RANK_MATCH_INT", |
+  && | rownum AS row_top |
   && | from "DD03VT" |
   && | where UTL_MATCH.jaro_winkler_similarity( upper(SCRTEXT_L), |
   && | '{ lv_contains_upper }') > { lv_similarity_short } and { iv_apply_filter } |
-  && | ORDER BY "RANK_MATCH_INT" DESC OFFSET { skip_records } ROWS FETCH NEXT { num_of_records } ROWS ONLY |
+  && | ORDER BY "RANK_MATCH_INT" DESC |
+  && | ) tab_flike where row_top <= { num_of_records + skip_records } |
+  && | ) tab4offset where row_bottom > { skip_records } |
   .
     ENDIF.
 
   ENDMETHOD.                    "get_query4ora
 
 
-* <SIGNATURE>---------------------------------------------------------------------------------------+
-* | Instance Private Method ZCL_C8A001_DB_ORA12->GET_SQL_LINE_BY_SEL_TAB
-* +-------------------------------------------------------------------------------------------------+
-* | [--->] IT_NAMED_DREF                  TYPE        TT_NAMED_DREF
-* | [<-()] RV_VAL                         TYPE        STRING
-* +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD get_sql_line_by_sel_tab.
 *        IMPORTING it_named_dref TYPE tt_named_dref
 *        RETURNING VALUE(rv_val) TYPE string.
@@ -148,15 +150,6 @@ CLASS ZCL_C8A001_DB_ORA12 IMPLEMENTATION.
   ENDMETHOD.                    "get_sql_line_by_sel_tab
 
 
-* <SIGNATURE>---------------------------------------------------------------------------------------+
-* | Instance Private Method ZCL_C8A001_DB_ORA12->PREPARE_FILTER
-* +-------------------------------------------------------------------------------------------------+
-* | [--->] IO_DTO_SCR                     TYPE REF TO ZCL_C8A001_SAMPLE_DTO_SCR
-* | [<---] EV_APPLY_FILTER                TYPE        STRING
-* | [<---] EV_APPLY_FILTER4TAB            TYPE        STRING
-* | [<---] EV_CONTAINS_SEARCH             TYPE        STRING
-* | [!CX!] ZCX_C8A001_DB_SUPPLY
-* +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD prepare_filter.
 
     DATA lt_range_ddlanguage TYPE RANGE OF dd03vt-ddlanguage.
@@ -201,10 +194,6 @@ CLASS ZCL_C8A001_DB_ORA12 IMPLEMENTATION.
   ENDMETHOD.                    "prepare_filter
 
 
-* <SIGNATURE>---------------------------------------------------------------------------------------+
-* | Instance Private Method ZCL_C8A001_DB_ORA12->SAMPLE_READ
-* +-------------------------------------------------------------------------------------------------+
-* +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD sample_read.
     DATA lo_adbc_query TYPE REF TO zcl_c8a001_adbc_query.
     DATA lv_trg_tab TYPE tabname VALUE 'DD02T'.
@@ -226,13 +215,6 @@ CLASS ZCL_C8A001_DB_ORA12 IMPLEMENTATION.
   ENDMETHOD.                    "sample_read
 
 
-* <SIGNATURE>---------------------------------------------------------------------------------------+
-* | Instance Public Method ZCL_C8A001_DB_ORA12->ZIF_C8A001_DB_SUPPLY~GET_DICT_FIELDS
-* +-------------------------------------------------------------------------------------------------+
-* | [--->] IO_DTO_SCR                     TYPE REF TO ZCL_C8A001_SAMPLE_DTO_SCR
-* | [<---] ET_DD03VT                      TYPE        TT_DD03VT
-* | [!CX!] ZCX_C8A001_DB_SUPPLY
-* +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD zif_c8a001_db_supply~get_dict_fields.
 
     DATA lv_apply_filter TYPE string.
