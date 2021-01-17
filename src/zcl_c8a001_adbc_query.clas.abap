@@ -191,7 +191,7 @@ CLASS ZCL_C8A001_ADBC_QUERY IMPLEMENTATION.
 
       "  CASE <lv_coldescr>-ddic_type.
       CASE ls_column_descr-ddic_type.
-        WHEN 'CHAR'.
+        WHEN 'CHAR' or 'LANG'.
           IF <fs_select_column>-aggfun IS NOT INITIAL.
             CREATE DATA <fs_select_column>-dref TYPE i.
           ELSE.
