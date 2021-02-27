@@ -9,4 +9,4 @@
 
 
 <h3>Detail Description in Russian</h3>
-<p> <a href="https://sappro.sapland.ru/kb/articles/stats/ispolizovanie-algoritmov-pohozhesti-strok-v-abap-c-bd-hana-amdp-i-oracle-adbc.html"> Article "ABAP Similarity Search with HANA (AMDP) and Oracle (ADBC)" on SAPLAND </a> </p>
+<p> <a href="https://sappro.sapland.ru/kb/articles/stats/ispolizovanie-algoritmov-pohozhesti-strok-v-abap-c-bd-hana-amdp-i-oracle-adbc.html" target="_blank"> Article "ABAP Similarity Search with HANA (AMDP) and Oracle (ADBC)" on SAPLAND </a> </p>
