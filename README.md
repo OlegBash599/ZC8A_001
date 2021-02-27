@@ -6,3 +6,7 @@
 
 <h3>Sample ALV-report for table fields</h3>
 <p> Searching tables and fields by description of target field(s) </p>
+
+
+<h3>Description</h3>
+<p href="https://sappro.sapland.ru/kb/articles/stats/ispolizovanie-algoritmov-pohozhesti-strok-v-abap-c-bd-hana-amdp-i-oracle-adbc.html"> Article "ABAP Similarity Search with HANA (AMDP) and Oracle (ADBC)" on SAPLAND </p>
